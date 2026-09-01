@@ -15,3 +15,9 @@ enum AuthProvider {
   GOOGLE
   CREDENTIAL
 }
+
+enum TechnicianVerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
