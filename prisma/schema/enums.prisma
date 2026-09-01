@@ -11,4 +11,7 @@ enum UserStatus {
   DELETED
 }
 
-
+enum AuthProvider {
+  GOOGLE
+  CREDENTIAL
+}
