@@ -5,7 +5,7 @@ import { AuthController } from "./auth.controller";
 
 const router = Router();
 
-router.post("/register", AuthController.registerPatient);
+router.post("/register", AuthController.registerCustomer);
 router.post("/login", AuthController.loginUser);
 router.get(
 	"/me",

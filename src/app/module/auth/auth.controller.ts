@@ -5,9 +5,9 @@ import { sendResponse } from "../../utils/sendResponse";
 import type { IRequestUser } from "./auth.interface";
 import { AuthService } from "./auth.service";
 
-const registerPatient = catchAsync(async (req: Request, res: Response) => {
+const registerCustomer = catchAsync(async (req: Request, res: Response) => {
 	const payload = req.body;
-	const result = await AuthService.registerPatient(payload);
+	const result = await AuthService.registerCustomer(payload);
 
 	const { accessToken, refreshToken, user, customer } = result;
 
@@ -114,7 +114,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const AuthController = {
-	registerPatient,
+	registerCustomer,
 	loginUser,
 	getMe,
 	refreshToken,

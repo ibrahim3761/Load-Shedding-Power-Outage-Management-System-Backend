@@ -6,11 +6,11 @@ import { prisma } from "../../lib/prisma";
 import { jwtUtils } from "../../utils/jwt";
 import type {
 	ILoginUserPayload,
-	IRegisterPatientPayload,
+	IRegisterCustomerPayload,
 	IRequestUser,
 } from "./auth.interface";
 
-const registerPatient = async (payload: IRegisterPatientPayload) => {
+const registerCustomer = async (payload: IRegisterCustomerPayload) => {
 	const { name, password } = payload;
 	const email = payload.email.trim().toLowerCase();
 
@@ -189,7 +189,7 @@ const refreshToken = async (token: string) => {
 };
 
 export const AuthService = {
-	registerPatient,
+	registerCustomer,
 	loginUser,
 	getMe,
 	refreshToken,
