@@ -6,14 +6,19 @@
     <style>
       body { font-family: Arial, sans-serif; background: #f7f7f7; color: #333; }
       .container { max-width: 500px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+      .password-box { background: #f0f4ff; border: 1px solid #c0d0ff; border-radius: 6px; padding: 14px 20px; margin: 20px 0; font-size: 22px; font-weight: bold; letter-spacing: 2px; text-align: center; color: #2a4aff; }
+      .warning { font-size: 13px; color: #e07000; margin-top: 10px; }
       .footer { margin-top: 30px; font-size: 12px; color: #888; }
     </style>
   </head>
   <body>
     <div class="container">
-      <h2>Congratulations, Dr. <%= name %>!</h2>
-      <p>Your application to join Load Shedding Power Outage Management System as a technician has been reviewed and approved.</p>
-      <p>You can now log in and start managing your schedule and consultations.</p>
+      <h2>Congratulations, <%= name %>! 🎉</h2>
+      <p>Your application to join the Load Shedding & Power Outage Management System as a technician has been reviewed and <strong>approved</strong>.</p>
+      <p>Here is your temporary login password:</p>
+      <div class="password-box"><%= password %></div>
+      <p class="warning">⚠️ Please log in and change your password immediately. Do not share this password with anyone.</p>
+      <p>You can now log in using your registered email and the temporary password above.</p>
       <div class="footer">&copy; Load Shedding Power Outage Management System. All rights reserved.</div>
     </div>
   </body>
