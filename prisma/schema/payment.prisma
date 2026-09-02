@@ -1,0 +1,22 @@
+model Payment {
+  id                    String        @id @default(uuid())
+  amount                String
+  status                PaymentStatus @default(PENDING)
+  bkashPaymentId        String?
+  bkashTrxId            String?
+  merchantInvoiceNumber String?
+  payerReference        String?
+  paidAt                DateTime?
+  gatewayResponse       Json?
+
+  premiumUserId String?  @unique
+  premiumUser   PremiumUser? @relation(fields: [premiumUserId], references: [id])
+
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("payments")
+}
+

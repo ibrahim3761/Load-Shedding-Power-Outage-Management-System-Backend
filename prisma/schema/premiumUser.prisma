@@ -18,6 +18,8 @@ model PremiumUser {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
+  payments Payment[]
+
   @@index([areaId, status], name: "idx_premium_user_areaId_status")
   @@index([expiresAt], name: "idx_premium_user_expiresAt")
   @@map("premium_users")

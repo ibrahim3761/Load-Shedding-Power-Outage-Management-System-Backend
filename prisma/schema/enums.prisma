@@ -41,3 +41,10 @@ enum SubscriptionStatus {
   EXPIRED
   CANCELLED
 }
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+}
