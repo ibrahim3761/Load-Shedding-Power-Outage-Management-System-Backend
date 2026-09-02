@@ -9,6 +9,9 @@ import {
 } from "./premiumPackage.validation";
 
 const router = Router();
+// public
+router.get("/public/all", PremiumPackageController.getPublicPackages);
+router.get("/public/:packageId", PremiumPackageController.getSinglePublicPackage);
 
 // admin
 router.post(
@@ -16,6 +19,18 @@ router.post(
   auth(Role.ADMIN, Role.SUPER_ADMIN),
   validateRequest(CreatePremiumPackageValidationZodSchema),
   PremiumPackageController.createPackage,
+);
+
+router.get(
+  "/all",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  PremiumPackageController.getAllPackages,
+);
+
+router.get(
+  "/:packageId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  PremiumPackageController.getSinglePackage,
 );
 
 router.patch(

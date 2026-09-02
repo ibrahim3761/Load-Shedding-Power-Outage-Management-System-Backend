@@ -15,8 +15,33 @@ const createPackage = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllPackages = catchAsync(async (req: Request, res: Response) => {
+  const result = await PremiumPackageServices.getAllPackages(req.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Packages fetched successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
+const getSinglePackage = catchAsync(async (req: Request, res: Response) => {
+  const packageId  = req.params.packageId as string;
+
+  const result = await PremiumPackageServices.getSinglePackage(packageId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Package fetched successfully",
+    data: result,
+  });
+});
+
 const updatePackage = catchAsync(async (req: Request, res: Response) => {
-  const  packageId  = req.params.packageId as string;
+  const packageId = req.params.packageId as string;
 
   const result = await PremiumPackageServices.updatePackage(
     packageId as string,
@@ -32,7 +57,7 @@ const updatePackage = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deletePackage = catchAsync(async (req: Request, res: Response) => {
-  const  packageId  = req.params.packageId as string;
+  const packageId = req.params.packageId as string;
 
   const result = await PremiumPackageServices.deletePackage(packageId);
 
@@ -44,8 +69,40 @@ const deletePackage = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getPublicPackages = catchAsync(async (req: Request, res: Response) => {
+  const result = await PremiumPackageServices.getPublicPackages(req.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Packages fetched successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
+const getSinglePublicPackage = catchAsync(
+  async (req: Request, res: Response) => {
+    const packageId  = req.params.packageId as string;
+
+    const result =
+      await PremiumPackageServices.getSinglePublicPackage(packageId);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Package fetched successfully",
+      data: result,
+    });
+  },
+);
+
 export const PremiumPackageController = {
   createPackage,
+  getAllPackages,
+  getSinglePackage,
   updatePackage,
   deletePackage,
+  getPublicPackages,
+  getSinglePublicPackage,
 };
