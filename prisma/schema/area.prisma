@@ -11,6 +11,7 @@ model Area {
 
   unexpectedOutages UnexpectedOutage[]
   scheduledOutages ScheduledOutage[]
+  premiumUsers PremiumUser[]
 
   @@unique([name, district])
   @@index([isDeleted], name: "idx_area_isDeleted")

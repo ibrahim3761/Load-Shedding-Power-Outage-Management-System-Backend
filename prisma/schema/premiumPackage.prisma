@@ -10,6 +10,8 @@ model PremiumPackage {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
+  premiumUsers PremiumUser[]
+
 
   @@index([isDeleted], name: "idx_premium_package_isDeleted")
   @@map("premium_packages")

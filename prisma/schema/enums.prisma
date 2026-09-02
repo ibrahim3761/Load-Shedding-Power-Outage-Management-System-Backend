@@ -35,3 +35,9 @@ enum ScheduledOutageStatus {
   COMPLETED
   CANCELLED
 }
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}

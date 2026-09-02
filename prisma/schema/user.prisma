@@ -15,9 +15,11 @@ model User {
   deletedAt          DateTime?
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
+
   customer           Customer?
   technician         Technician?
   unexpectedOutages  UnexpectedOutage[]
+  premiumSubscriptions PremiumUser[]
 
   @@unique([email])
   @@map("users")

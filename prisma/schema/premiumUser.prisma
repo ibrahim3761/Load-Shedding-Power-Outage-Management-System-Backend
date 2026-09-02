@@ -1,0 +1,24 @@
+model PremiumUser {
+  id        String             @id @default(uuid())
+  status    SubscriptionStatus @default(ACTIVE)
+  startDate DateTime           @default(now())
+  expiresAt DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  areaId String
+  area   Area   @relation(fields: [areaId], references: [id])
+
+  packageId String
+  package   PremiumPackage @relation(fields: [packageId], references: [id])
+
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([areaId, status], name: "idx_premium_user_areaId_status")
+  @@index([expiresAt], name: "idx_premium_user_expiresAt")
+  @@map("premium_users")
+}
