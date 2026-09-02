@@ -14,6 +14,7 @@ import { UserRoutes } from "./app/module/user/user.router";
 import { TechnicianRoutes } from "./app/module/technician/technician.route";
 import { AreaRoutes } from "./app/module/area/area.router";
 import { UnexpectedOutageRoutes } from "./app/module/unexpectedOutage/unexpectedOutage.router";
+import { PremiumPackageRoutes } from "./app/module/premiumPackage/premiumPackage.route";
 
 const app: Application = express();
 
@@ -36,6 +37,7 @@ app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/technician", TechnicianRoutes);
 app.use("/api/v1/area", AreaRoutes);
 app.use("/api/v1/unexpected-outage", UnexpectedOutageRoutes);
+app.use("/api/v1/premium-package", PremiumPackageRoutes);
 
 // Basic route
 app.get("/", async (req: Request, res: Response) => {
