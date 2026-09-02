@@ -1,0 +1,16 @@
+model PremiumPackage {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  price       Float
+  durationDays Int
+
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+
+  @@index([isDeleted], name: "idx_premium_package_isDeleted")
+  @@map("premium_packages")
+}
