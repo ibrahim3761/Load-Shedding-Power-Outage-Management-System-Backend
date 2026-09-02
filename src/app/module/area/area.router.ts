@@ -9,9 +9,8 @@ import {
 
 const router = Router();
 
+router.get("/public/all", AreaController.getPublicAreas);
 
-
-// admin
 router.post(
   "/create",
   auth(Role.ADMIN, Role.SUPER_ADMIN),
@@ -19,6 +18,17 @@ router.post(
   AreaController.createArea,
 );
 
+router.get(
+  "/all",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  AreaController.getAllAreas,
+);
+
+router.get(
+  "/:areaId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  AreaController.getSingleArea,
+);
 
 
 export const AreaRoutes = router;

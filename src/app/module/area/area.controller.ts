@@ -15,8 +15,46 @@ const createArea = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllAreas = catchAsync(async (req: Request, res: Response) => {
+  const result = await AreaServices.getAllAreas(req.query);
 
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Areas fetched successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
+const getSingleArea = catchAsync(async (req: Request, res: Response) => {
+  const { areaId } = req.params;
+
+  const result = await AreaServices.getSingleArea(areaId as string);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Area fetched successfully",
+    data: result,
+  });
+});
+
+const getPublicAreas = catchAsync(async (req: Request, res: Response) => {
+  const result = await AreaServices.getPublicAreas(req.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Areas fetched successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
 
 export const AreaController = {
   createArea,
+  getAllAreas,
+  getSingleArea,
+  getPublicAreas,
 };
