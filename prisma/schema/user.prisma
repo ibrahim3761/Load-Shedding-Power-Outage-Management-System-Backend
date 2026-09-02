@@ -17,6 +17,7 @@ model User {
   updatedAt          DateTime     @updatedAt
   customer           Customer?
   technician         Technician?
+  unexpectedOutages  UnexpectedOutage[]
 
   @@unique([email])
   @@map("users")

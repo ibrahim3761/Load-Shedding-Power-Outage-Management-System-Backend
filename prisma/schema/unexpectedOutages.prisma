@@ -1,0 +1,29 @@
+model UnexpectedOutage {
+  id          String       @id @default(uuid())
+  description String
+  status      OutageStatus @default(REPORTED)
+  note        String?
+  resolvedAt  DateTime?
+
+  // reporter
+  reporterId String
+  reporter   User   @relation(fields: [reporterId], references: [id])
+
+  // assigned technician (null until admin assigns)
+  technicianId String?
+  technician   Technician? @relation(fields: [technicianId], references: [id])
+
+  // area
+  areaId String
+  area   Area   @relation(fields: [areaId], references: [id])
+
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([status], name: "idx_unexpected_outage_status")
+  @@index([areaId], name: "idx_unexpected_outage_areaId")
+  @@index([isDeleted], name: "idx_unexpected_outage_isDeleted")
+  @@map("unexpected_outages")
+}

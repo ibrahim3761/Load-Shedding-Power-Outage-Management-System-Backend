@@ -21,3 +21,10 @@ enum TechnicianVerificationStatus {
   APPROVED
   REJECTED
 }
+
+enum OutageStatus {
+  REPORTED
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+}
