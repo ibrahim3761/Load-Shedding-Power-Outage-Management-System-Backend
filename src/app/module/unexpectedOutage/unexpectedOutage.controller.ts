@@ -18,32 +18,6 @@ const reportOutage = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getAllOutages = catchAsync(async (req: Request, res: Response) => {
-  const result = await UnexpectedOutageServices.getAllOutages(req.query);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "All outages fetched successfully",
-    data: result.data,
-    meta: result.meta,
-  });
-});
-
-const getSingleOutage = catchAsync(async (req: Request, res: Response) => {
-  const { outageId } = req.params;
-  const user = req.user as RequestUser;
-
-  const result = await UnexpectedOutageServices.getSingleOutage(outageId as string, user);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Outage fetched successfully",
-    data: result,
-  });
-});
-
 const getMyReports = catchAsync(async (req: Request, res: Response) => {
   const user = req.user as RequestUser;
 
@@ -75,6 +49,82 @@ const getMyAssignments = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateStatus = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as RequestUser;
+  const { outageId } = req.params;
+
+  const result = await UnexpectedOutageServices.updateStatus(
+    outageId as string,
+    req.body,
+    user,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Outage status updated successfully",
+    data: result,
+  });
+});
+
+const getAllOutages = catchAsync(async (req: Request, res: Response) => {
+  const result = await UnexpectedOutageServices.getAllOutages(req.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "All outages fetched successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
+const getSingleOutage = catchAsync(async (req: Request, res: Response) => {
+  const { outageId } = req.params;
+  const user = req.user as RequestUser;
+
+  const result = await UnexpectedOutageServices.getSingleOutage(
+    outageId as string,
+    user,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Outage fetched successfully",
+    data: result,
+  });
+});
+
+const assignTechnician = catchAsync(async (req: Request, res: Response) => {
+  const { outageId } = req.params;
+
+  const result = await UnexpectedOutageServices.assignTechnician(
+    outageId as string,
+    req.body,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Technician assigned successfully",
+    data: result,
+  });
+});
+
+const deleteOutage = catchAsync(async (req: Request, res: Response) => {
+  const { outageId } = req.params;
+
+  const result = await UnexpectedOutageServices.deleteOutage(outageId as string);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Outage deleted successfully",
+    data: result,
+  });
+});
+
 const getPublicOutagesByArea = catchAsync(
   async (req: Request, res: Response) => {
     const { areaId } = req.params;
@@ -96,9 +146,12 @@ const getPublicOutagesByArea = catchAsync(
 
 export const UnexpectedOutageController = {
   reportOutage,
-  getAllOutages,
-  getSingleOutage,
   getMyReports,
   getMyAssignments,
+  updateStatus,
+  getAllOutages,
+  getSingleOutage,
+  assignTechnician,
+  deleteOutage,
   getPublicOutagesByArea,
 };

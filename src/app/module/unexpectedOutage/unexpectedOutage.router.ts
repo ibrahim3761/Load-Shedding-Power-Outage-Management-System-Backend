@@ -4,7 +4,9 @@ import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { UnexpectedOutageController } from "./unexpectedOutage.controller";
 import {
+    AssignTechnicianValidationZodSchema,
   ReportOutageValidationZodSchema,
+  UpdateOutageStatusValidationZodSchema,
 } from "./unexpectedOutage.validation";
 
 const router = Router();
@@ -35,6 +37,13 @@ router.get(
   UnexpectedOutageController.getMyAssignments,
 );
 
+router.patch(
+  "/:outageId/update-status",
+  auth(Role.TECHNICIAN),
+  validateRequest(UpdateOutageStatusValidationZodSchema),
+  UnexpectedOutageController.updateStatus,
+); 
+
 // admin
 router.get(
   "/all",
@@ -42,12 +51,23 @@ router.get(
   UnexpectedOutageController.getAllOutages,
 );
 
+//admin, super admin and technician can see single outage details
 router.get(
   "/:outageId",
   auth(Role.ADMIN, Role.SUPER_ADMIN, Role.TECHNICIAN),
   UnexpectedOutageController.getSingleOutage,
 );
 
+router.patch(
+  "/:outageId/assign",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  validateRequest(AssignTechnicianValidationZodSchema),
+  UnexpectedOutageController.assignTechnician,
+);
 
-
+router.delete(
+  "/:outageId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  UnexpectedOutageController.deleteOutage,
+);
 export const UnexpectedOutageRoutes = router;
