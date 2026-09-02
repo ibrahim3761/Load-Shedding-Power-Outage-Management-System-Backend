@@ -10,6 +10,7 @@ model Area {
   updatedAt DateTime  @updatedAt
 
   unexpectedOutages UnexpectedOutage[]
+  scheduledOutages ScheduledOutage[]
 
   @@unique([name, district])
   @@index([isDeleted], name: "idx_area_isDeleted")

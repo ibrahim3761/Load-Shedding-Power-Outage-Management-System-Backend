@@ -1,0 +1,21 @@
+model ScheduledOutage {
+  id        String                @id @default(uuid())
+  reason    String
+  startTime DateTime
+  endTime   DateTime
+  status    ScheduledOutageStatus @default(UPCOMING)
+
+  areaId String
+  area   Area   @relation(fields: [areaId], references: [id])
+
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([status], name: "idx_scheduled_outage_status")
+  @@index([areaId], name: "idx_scheduled_outage_areaId")
+  @@index([startTime], name: "idx_scheduled_outage_startTime")
+  @@index([isDeleted], name: "idx_scheduled_outage_isDeleted")
+  @@map("scheduled_outages")
+}

@@ -28,3 +28,10 @@ enum OutageStatus {
   IN_PROGRESS
   RESOLVED
 }
+
+enum ScheduledOutageStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
