@@ -40,6 +40,32 @@ const getSingleArea = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateArea = catchAsync(async (req: Request, res: Response) => {
+  const { areaId } = req.params;
+
+  const result = await AreaServices.updateArea(areaId as string, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Area updated successfully",
+    data: result,
+  });
+});
+
+const deleteArea = catchAsync(async (req: Request, res: Response) => {
+  const { areaId } = req.params;
+
+  const result = await AreaServices.deleteArea(areaId as string);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Area deleted successfully",
+    data: result,
+  });
+});
+
 const getPublicAreas = catchAsync(async (req: Request, res: Response) => {
   const result = await AreaServices.getPublicAreas(req.query);
 
@@ -56,5 +82,7 @@ export const AreaController = {
   createArea,
   getAllAreas,
   getSingleArea,
+  updateArea,
+  deleteArea,
   getPublicAreas,
 };

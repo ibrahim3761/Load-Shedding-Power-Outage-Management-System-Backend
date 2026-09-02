@@ -5,6 +5,7 @@ import { validateRequest } from "../../middleware/validateRequest";
 import { AreaController } from "./area.controller";
 import {
   CreateAreaValidationZodSchema,
+  UpdateAreaValidationZodSchema,
 } from "./area.validation";
 
 const router = Router();
@@ -28,6 +29,19 @@ router.get(
   "/:areaId",
   auth(Role.ADMIN, Role.SUPER_ADMIN),
   AreaController.getSingleArea,
+);
+
+router.patch(
+  "/:areaId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  validateRequest(UpdateAreaValidationZodSchema),
+  AreaController.updateArea,
+);
+
+router.delete(
+  "/:areaId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  AreaController.deleteArea,
 );
 
 

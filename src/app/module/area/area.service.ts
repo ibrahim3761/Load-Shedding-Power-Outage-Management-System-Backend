@@ -3,7 +3,7 @@ import { AreaWhereInput } from "../../../generated/prisma/models";
 import { prisma } from "../../lib/prisma";
 import { IQuery } from "../../interfaces";
 import { AppError } from "../../utils/AppError";
-import { ICreateAreaPayload } from "./area.interface";
+import { ICreateAreaPayload, IUpdateAreaPayload } from "./area.interface";
 
 const createArea = async (payload: ICreateAreaPayload) => {
   const isAreaExists = await prisma.area.findUnique({
@@ -15,11 +15,24 @@ const createArea = async (payload: ICreateAreaPayload) => {
     },
   });
 
-  if (isAreaExists) {
+  if (isAreaExists && !isAreaExists.isDeleted) {
     throw new AppError(
       httpStatus.CONFLICT,
       "Area Already Exists In This District",
     );
+  }
+
+  // if soft deleted before, restore it
+  if (isAreaExists && isAreaExists.isDeleted) {
+    const restoredArea = await prisma.area.update({
+      where: { id: isAreaExists.id },
+      data: {
+        isDeleted: false,
+        deletedAt: null,
+        city: payload.city, // update city in case it changed
+      },
+    });
+    return restoredArea;
   }
 
   const area = await prisma.area.create({
@@ -89,6 +102,59 @@ const getSingleArea = async (areaId: string) => {
   return area;
 };
 
+const updateArea = async (areaId: string, payload: IUpdateAreaPayload) => {
+  const existingArea = await prisma.area.findUnique({
+    where: { id: areaId, isDeleted: false },
+  });
+
+  if (!existingArea) {
+    throw new AppError(httpStatus.NOT_FOUND, "Area Not Found");
+  }
+
+  // check duplicate if name or district is being changed
+  if (payload.name || payload.district) {
+    const duplicate = await prisma.area.findUnique({
+      where: {
+        name_district: {
+          name: payload.name ?? existingArea.name,
+          district: payload.district ?? existingArea.district,
+        },
+      },
+    });
+
+    if (duplicate && duplicate.id !== areaId) {
+      throw new AppError(
+        httpStatus.CONFLICT,
+        "Area Already Exists In This District",
+      );
+    }
+  }
+
+  const updatedArea = await prisma.area.update({
+    where: { id: areaId },
+    data: payload,
+  });
+
+  return updatedArea;
+};
+
+const deleteArea = async (areaId: string) => {
+  const existingArea = await prisma.area.findUnique({
+    where: { id: areaId, isDeleted: false },
+  });
+
+  if (!existingArea) {
+    throw new AppError(httpStatus.NOT_FOUND, "Area Not Found");
+  }
+
+  const deletedArea = await prisma.area.update({
+    where: { id: areaId },
+    data: { isDeleted: true, deletedAt: new Date() },
+  });
+
+  return deletedArea;
+};
+
 const getPublicAreas = async (query: IQuery) => {
   const limit = query.limit ? Number(query.limit) : 100; // higher limit for dropdowns
   const page = query.page ? Number(query.page) : 1;
@@ -139,5 +205,7 @@ export const AreaServices = {
   createArea,
   getAllAreas,
   getSingleArea,
+  updateArea,
+  deleteArea,
   getPublicAreas,
 };
