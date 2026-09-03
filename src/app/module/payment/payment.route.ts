@@ -17,6 +17,23 @@ router.post(
 // bKash hits this — no auth
 router.get("/callback", PaymentController.paymentCallback);
 
+router.get(
+  "/my-payments",
+  auth(Role.CUSTOMER),
+  PaymentController.getMyPayments,
+);
 
+router.get(
+  "/all",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  PaymentController.getAllPayments,
+);
+
+// always last
+router.get(
+  "/:paymentId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER),
+  PaymentController.getPaymentDetails,
+);
 
 export const PaymentRoutes = router; 

@@ -12,11 +12,9 @@ import type { RequestUser } from "../../middleware/checkAuth";
 import { AppError } from "../../utils/AppError";
 import httpStatus from "http-status";
 import type { IBuyPremiumPayload } from "./payment.interface";
+import { transporter } from "../../lib/nodemailer";
 
-const buyPremium = async (
-  payload: IBuyPremiumPayload,
-  user: RequestUser,
-) => {
+const buyPremium = async (payload: IBuyPremiumPayload, user: RequestUser) => {
   const transactionResult = await prisma.$transaction(async (tx) => {
     // check package exists
     const existingPackage = await tx.premiumPackage.findUnique({
@@ -201,6 +199,101 @@ const paymentCallback = async (query: Record<string, string>) => {
           },
         });
 
+        // fetch full premium user details for invoice
+        const premiumUser = await tx.premiumUser.findUnique({
+          where: { id: premiumUserId },
+          include: {
+            user: true,
+            package: true,
+            area: true,
+          },
+        });
+
+        if (!premiumUser) {
+          throw new AppError(httpStatus.NOT_FOUND, "Premium User Not Found");
+        }
+
+        // generate PDF invoice
+        const PDFDocument = (await import("pdfkit")).default;
+        const pdfDocument = new PDFDocument({ margin: 50 });
+        const pdfChunks: Buffer[] = [];
+
+        pdfDocument.on("data", (chunk: Buffer) => {
+          pdfChunks.push(chunk);
+        });
+
+        const pdfReadyPromise = new Promise<Buffer>((resolve) => {
+          pdfDocument.on("end", () => {
+            resolve(Buffer.concat(pdfChunks));
+          });
+        });
+
+        // invoice content
+        pdfDocument
+          .fontSize(20)
+          .text("Load Shedding & Power Outage Management System", {
+            align: "center",
+          });
+        pdfDocument
+          .fontSize(14)
+          .text("Premium Subscription Invoice", { align: "center" });
+        pdfDocument.moveDown(2);
+
+        pdfDocument
+          .fontSize(12)
+          .text(`Invoice Date: ${new Date().toDateString()}`);
+        pdfDocument.moveDown();
+
+        pdfDocument.text(`Customer Name: ${premiumUser.user.name}`);
+        pdfDocument.text(`Customer Email: ${premiumUser.user.email}`);
+        pdfDocument.moveDown();
+
+        pdfDocument.text(`Package: ${premiumUser.package.name}`);
+        pdfDocument.text(`Duration: ${premiumUser.package.durationDays} days`);
+        pdfDocument.text(
+          `Area: ${premiumUser.area.name}, ${premiumUser.area.district}`,
+        );
+        pdfDocument.text(
+          `Subscription Start: ${premiumUser.startDate.toDateString()}`,
+        );
+        pdfDocument.text(
+          `Subscription Expires: ${premiumUser.expiresAt.toDateString()}`,
+        );
+        pdfDocument.moveDown();
+
+        pdfDocument.text(`Amount Paid: ${executedPaymentResult.amount} BDT`);
+        pdfDocument.text(`Payment Method: bKash`);
+        pdfDocument.text(`Transaction ID: ${executedPaymentResult.trxID}`);
+        pdfDocument.text(
+          `Paid At: ${executedPaymentResult.paymentExecuteTime}`,
+        );
+        pdfDocument.moveDown(2);
+
+        pdfDocument
+          .fontSize(10)
+          .text(
+            "Thank you for subscribing! You will now receive real-time notifications about power outages in your area.",
+            { align: "center" },
+          );
+
+        pdfDocument.end();
+
+        const pdfBuffer = await pdfReadyPromise;
+
+        // send invoice email
+        await transporter.sendMail({
+          from: config.email_sender,
+          to: premiumUser.user.email,
+          subject: "Your Premium Subscription Invoice ⚡",
+          text: "Thank you for subscribing to our premium plan. Please find your invoice attached.",
+          attachments: [
+            {
+              filename: `invoice-${executedPaymentResult.trxID}.pdf`,
+              content: pdfBuffer,
+            },
+          ],
+        });
+
         return {
           redirectUrl: `${config.frontend_url}/dashboard/my-subscription?status=success`,
         };
@@ -261,8 +354,81 @@ const paymentCallback = async (query: Record<string, string>) => {
   return transactionResult;
 };
 
+const getMyPayments = async (user: RequestUser) => {
+  const payments = await prisma.payment.findMany({
+    where: {
+      isDeleted: false,
+      premiumUser: {
+        userId: user.userId,
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    include: {
+      premiumUser: {
+        include: {
+          package: true,
+          area: true,
+        },
+      },
+    },
+  });
+
+  return payments;
+};
+
+const getAllPayments = async () => {
+  const payments = await prisma.payment.findMany({
+    where: { isDeleted: false },
+    orderBy: { createdAt: "desc" },
+    include: {
+      premiumUser: {
+        include: {
+          user: { omit: { password: true } },
+          package: true,
+          area: true,
+        },
+      },
+    },
+  });
+
+  return payments;
+};
+
+const getPaymentDetails = async (paymentId: string, user: RequestUser) => {
+  const payment = await prisma.payment.findUnique({
+    where: { id: paymentId, isDeleted: false },
+    include: {
+      premiumUser: {
+        include: {
+          user: { omit: { password: true } },
+          package: true,
+          area: true,
+        },
+      },
+    },
+  });
+
+  if (!payment) {
+    throw new AppError(httpStatus.NOT_FOUND, "Payment Not Found");
+  }
+
+  // customer can only see their own payment
+  if (user.role === Role.CUSTOMER) {
+    if (payment.premiumUser?.userId !== user.userId) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "You Are Not Allowed To View This Payment",
+      );
+    }
+  }
+
+  return payment;
+};
 
 export const PaymentServices = {
   buyPremium,
   paymentCallback,
+  getMyPayments,
+  getAllPayments,
+  getPaymentDetails,
 };

@@ -19,15 +19,55 @@ const buyPremium = catchAsync(async (req: Request, res: Response) => {
 });
 
 const paymentCallback = catchAsync(async (req: Request, res: Response) => {
-  const result = await PaymentServices.paymentCallback(
+  const { redirectUrl } = await PaymentServices.paymentCallback(
     req.query as Record<string, string>,
   );
 
-  res.redirect(result.redirectUrl);
+  res.redirect(redirectUrl);
 });
 
+const getMyPayments = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as RequestUser;
+
+  const result = await PaymentServices.getMyPayments(user);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "My payments fetched successfully",
+    data: result,
+  });
+});
+
+const getAllPayments = catchAsync(async (req: Request, res: Response) => {
+  const result = await PaymentServices.getAllPayments();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "All payments fetched successfully",
+    data: result,
+  });
+});
+
+const getPaymentDetails = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as RequestUser;
+  const { paymentId } = req.params;
+
+  const result = await PaymentServices.getPaymentDetails(paymentId as string, user);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Payment details fetched successfully",
+    data: result,
+  });
+});
 
 export const PaymentController = {
   buyPremium,
   paymentCallback,
+  getMyPayments,
+  getAllPayments,
+  getPaymentDetails,
 };
