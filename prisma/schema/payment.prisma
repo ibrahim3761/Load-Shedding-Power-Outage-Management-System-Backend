@@ -2,11 +2,11 @@ model Payment {
   id                    String        @id @default(uuid())
   amount                String
   status                PaymentStatus @default(PENDING)
-  bkashPaymentId        String?
+  bkashPaymentId        String?       @unique
   bkashTrxId            String?
   merchantInvoiceNumber String?
   payerReference        String?
-  paidAt                DateTime?
+  paidAt                String?
   gatewayResponse       Json?
 
   premiumUserId String?  @unique
