@@ -30,11 +30,15 @@ declare global {
 // auth() => ...requiredRoles => [Role.ADMIN, Role.USER, Role.AUTHOR]
 export const auth = (...requiredRoles: Role[]) => {
 	return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-		const token = req.cookies.accessToken
-			? req.cookies.accessToken
-			: req.headers.authorization?.startsWith("Bearer ")
-				? req.headers.authorization?.split(" ")[1]
-				: req.headers.authorization;
+		const authHeader = req.headers.authorization;
+
+		if (!authHeader || !authHeader.startsWith("Bearer ")) {
+			throw new Error(
+				"You are not logged in. Please provide a Bearer token to access this resource.",
+			);
+		}
+
+		const token = authHeader.split(" ")[1];
 
 		if (!token) {
 			throw new Error(
