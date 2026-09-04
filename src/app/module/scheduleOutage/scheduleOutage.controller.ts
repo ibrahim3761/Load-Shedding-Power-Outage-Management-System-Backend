@@ -39,13 +39,48 @@ const getSingleScheduledOutage = catchAsync(
   async (req: Request, res: Response) => {
     const { outageId } = req.params;
 
-    const result =
-      await ScheduledOutageServices.getSingleScheduledOutage(outageId as string);
+    const result = await ScheduledOutageServices.getSingleScheduledOutage(
+      outageId as string,
+    );
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "Scheduled outage fetched successfully",
+      data: result,
+    });
+  },
+);
+
+const updateScheduledOutage = catchAsync(
+  async (req: Request, res: Response) => {
+    const { outageId } = req.params;
+
+    const result = await ScheduledOutageServices.updateScheduledOutage(
+      outageId as string,
+      req.body,
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Scheduled outage updated successfully",
+      data: result,
+    });
+  },
+);
+
+const deleteScheduledOutage = catchAsync(
+  async (req: Request, res: Response) => {
+    const { outageId } = req.params;
+
+    const result =
+      await ScheduledOutageServices.deleteScheduledOutage(outageId as string);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Scheduled outage deleted successfully",
       data: result,
     });
   },
@@ -90,6 +125,8 @@ export const ScheduledOutageController = {
   createScheduledOutage,
   getAllScheduledOutages,
   getSingleScheduledOutage,
+  updateScheduledOutage,
+  deleteScheduledOutage,
   getPublicScheduledOutages,
   getPublicOutagesByArea,
 };

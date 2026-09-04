@@ -6,7 +6,7 @@ import {
 } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../utils/AppError";
-import { ICreateScheduledOutagePayload } from "./scheduleOutage.interface";
+import { ICreateScheduledOutagePayload, IUpdateScheduledOutagePayload } from "./scheduleOutage.interface";
 import httpStatus from "http-status";
 import { transporter } from "../../lib/nodemailer";
 import config from "../../config";
@@ -120,7 +120,6 @@ const createScheduledOutage = async (
 };
 
 const getAllScheduledOutages = async (query: IQuery) => {
-  
   await updateOutageStatuses();
 
   const limit = query.limit ? Number(query.limit) : 10;
@@ -164,7 +163,6 @@ const getAllScheduledOutages = async (query: IQuery) => {
 };
 
 const getSingleScheduledOutage = async (outageId: string) => {
-
   await updateOutageStatuses();
 
   const outage = await prisma.scheduledOutage.findUnique({
@@ -177,6 +175,125 @@ const getSingleScheduledOutage = async (outageId: string) => {
   }
 
   return outage;
+};
+
+const updateScheduledOutage = async (
+  outageId: string,
+  payload: IUpdateScheduledOutagePayload,
+) => {
+  const existingOutage = await prisma.scheduledOutage.findUnique({
+    where: { id: outageId, isDeleted: false },
+    include: { area: true },
+  });
+
+  if (!existingOutage) {
+    throw new AppError(httpStatus.NOT_FOUND, "Scheduled Outage Not Found");
+  }
+
+  if (existingOutage.status === ScheduledOutageStatus.COMPLETED) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "Cannot Update A Completed Outage",
+    );
+  }
+
+  if (existingOutage.status === ScheduledOutageStatus.CANCELLED) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "Cannot Update A Cancelled Outage",
+    );
+  }
+
+  // if cancelling
+  if (payload.status === ScheduledOutageStatus.CANCELLED) {
+    const cancelledOutage = await prisma.scheduledOutage.update({
+      where: { id: outageId },
+      data: { status: ScheduledOutageStatus.CANCELLED },
+      include: { area: true },
+    });
+
+    // find all active premium users in this area
+    const premiumUsers = await prisma.premiumUser.findMany({
+      where: {
+        areaId: existingOutage.areaId,
+        status: SubscriptionStatus.ACTIVE,
+        isDeleted: false,
+      },
+      include: { user: true },
+    });
+
+    // send cancellation emails
+    if (premiumUsers.length > 0) {
+      const templatePath = path.join(
+        process.cwd(),
+        "src/app/templates/scheduled-outage-cancelled.ejs",
+      );
+
+      await Promise.all(
+        premiumUsers.map(async (premiumUser) => {
+          const templateData = {
+            name: premiumUser.user.name,
+            area: existingOutage.area.name,
+            district: existingOutage.area.district,
+            reason: existingOutage.reason,
+            startTime: existingOutage.startTime.toLocaleString(),
+            endTime: existingOutage.endTime.toLocaleString(),
+          };
+
+          const html = await ejs.renderFile(templatePath, templateData);
+
+          await transporter.sendMail({
+            from: config.email_sender,
+            to: premiumUser.user.email,
+            subject: `✅ Outage Cancelled - ${existingOutage.area.name}`,
+            html,
+          });
+        }),
+      );
+    }
+
+    return cancelledOutage;
+  }
+
+  // normal update — only UPCOMING can be updated
+  if (existingOutage.status !== ScheduledOutageStatus.UPCOMING) {
+    throw new AppError(
+      httpStatus.CONFLICT,
+      "Only Upcoming Outages Can Be Updated",
+    );
+  }
+
+  const updatedOutage = await prisma.scheduledOutage.update({
+    where: { id: outageId },
+    data: {
+      ...payload,
+      startTime: payload.startTime ? new Date(payload.startTime) : undefined,
+      endTime: payload.endTime ? new Date(payload.endTime) : undefined,
+    },
+    include: { area: true },
+  });
+
+  return updatedOutage;
+};
+const deleteScheduledOutage = async (outageId: string) => {
+  const existingOutage = await prisma.scheduledOutage.findUnique({
+    where: { id: outageId, isDeleted: false },
+  });
+
+  if (!existingOutage) {
+    throw new AppError(httpStatus.NOT_FOUND, "Scheduled Outage Not Found");
+  }
+
+  if (existingOutage.status === ScheduledOutageStatus.ONGOING) {
+    throw new AppError(httpStatus.CONFLICT, "Cannot Delete An Ongoing Outage");
+  }
+
+  const deletedOutage = await prisma.scheduledOutage.update({
+    where: { id: outageId },
+    data: { isDeleted: true, deletedAt: new Date() },
+  });
+
+  return deletedOutage;
 };
 
 const getPublicScheduledOutages = async (query: IQuery) => {
@@ -289,6 +406,8 @@ export const ScheduledOutageServices = {
   createScheduledOutage,
   getAllScheduledOutages,
   getSingleScheduledOutage,
+  updateScheduledOutage,
+  deleteScheduledOutage,
   getPublicScheduledOutages,
   getPublicOutagesByArea,
 };

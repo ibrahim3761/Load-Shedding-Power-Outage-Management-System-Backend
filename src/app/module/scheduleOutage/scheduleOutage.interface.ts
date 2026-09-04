@@ -1,3 +1,5 @@
+import { ScheduledOutageStatus } from "../../../generated/prisma/enums";
+
 export interface ICreateScheduledOutagePayload {
   reason: string;
   startTime: string;
@@ -11,4 +13,5 @@ export interface IUpdateScheduledOutagePayload {
   startTime?: string;
   endTime?: string;
   technicianId?: string;
+  status?: ScheduledOutageStatus;
 }

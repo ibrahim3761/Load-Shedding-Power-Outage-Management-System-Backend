@@ -3,7 +3,7 @@ import { Role } from "../../../generated/prisma/enums";
 import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { ScheduledOutageController } from "./scheduleOutage.controller";
-import { CreateScheduledOutageValidationZodSchema } from "./scheduleOutage.validation";
+import { CreateScheduledOutageValidationZodSchema, UpdateScheduledOutageValidationZodSchema } from "./scheduleOutage.validation";
 
 const router = Router();
 
@@ -38,7 +38,18 @@ router.get(
   ScheduledOutageController.getSingleScheduledOutage,
 );
 
+router.patch(
+  "/:outageId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  validateRequest(UpdateScheduledOutageValidationZodSchema),
+  ScheduledOutageController.updateScheduledOutage,
+);
 
+router.delete(
+  "/:outageId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  ScheduledOutageController.deleteScheduledOutage,
+);
 
 
 export const ScheduledOutageRoutes = router;
