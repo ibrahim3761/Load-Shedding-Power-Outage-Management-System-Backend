@@ -179,7 +179,7 @@ const verifyCustomerEmail = async (payload: IVerifyEmailPayload) => {
 	await transporter.sendMail({
 		from: config.email_sender,
 		to: email,
-		subject: "Welcome to PH Healthcare System",
+		subject: "Welcome to Load Shedding Power Outage Management System",
 		// html: `<p>Your OTP for password reset is: <strong>${otp}</strong>. It will expire in 5 minutes.</p>`,
 		html,
 	});
@@ -531,7 +531,7 @@ const forgotPassword = async (payload: IForgotPasswordPayload) => {
 
 	const templatePath = path.join(
 		process.cwd(),
-		"src/app/templates/forgot-passwords.ejs",
+		"src/app/templates/forgot-password.ejs",
 	);
 	const templateData = {
 		name: isUserExist.name,

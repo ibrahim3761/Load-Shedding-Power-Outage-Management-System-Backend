@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Power Outage Alert</title>
+    <style>
+      body { font-family: Arial, sans-serif; background: #f7f7f7; color: #333; }
+      .container { max-width: 500px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+      .alert-box { background: #fff8f0; border: 1px solid #f6ad55; border-radius: 6px; padding: 14px 20px; margin: 20px 0; }
+      .alert-box h3 { color: #c05621; margin: 0 0 8px 0; }
+      .detail-row { margin: 8px 0; font-size: 14px; }
+      .detail-row span { font-weight: bold; }
+      .footer { margin-top: 30px; font-size: 12px; color: #888; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>⚡ Power Outage Alert, <%= name %>!</h2>
+      <p>A scheduled power outage has been planned for your area.</p>
+      <div class="alert-box">
+        <h3>🔌 Scheduled Outage Details</h3>
+        <div class="detail-row"><span>Area:</span> <%= area %>, <%= district %></div>
+        <div class="detail-row"><span>Reason:</span> <%= reason %></div>
+        <div class="detail-row"><span>Start Time:</span> <%= startTime %></div>
+        <div class="detail-row"><span>End Time:</span> <%= endTime %></div>
+      </div>
+      <p>Please make necessary arrangements before the outage begins.</p>
+      <p>Thank you for being a premium subscriber!</p>
+      <div class="footer">&copy; Load Shedding & Power Outage Management System. All rights reserved.</div>
+    </div>
+  </body>
+</html>

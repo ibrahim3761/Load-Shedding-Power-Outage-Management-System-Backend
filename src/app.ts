@@ -16,6 +16,7 @@ import { AreaRoutes } from "./app/module/area/area.router";
 import { UnexpectedOutageRoutes } from "./app/module/unexpectedOutage/unexpectedOutage.router";
 import { PremiumPackageRoutes } from "./app/module/premiumPackage/premiumPackage.route";
 import { PaymentRoutes } from "./app/module/payment/payment.route";
+import { ScheduledOutageRoutes } from "./app/module/scheduleOutage/scheduleOutage.route";
 
 const app: Application = express();
 
@@ -38,6 +39,7 @@ app.use("/api/v1/user", UserRoutes);
 app.use("/api/v1/technician", TechnicianRoutes);
 app.use("/api/v1/area", AreaRoutes);
 app.use("/api/v1/unexpected-outage", UnexpectedOutageRoutes);
+app.use("/api/v1/scheduled-outage", ScheduledOutageRoutes);
 app.use("/api/v1/premium-package", PremiumPackageRoutes);
 app.use("/api/v1/payment", PaymentRoutes);
 
