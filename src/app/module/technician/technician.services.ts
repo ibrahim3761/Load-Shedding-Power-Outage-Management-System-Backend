@@ -3,11 +3,12 @@ import path from "path";
 
 import bcrypt from "bcryptjs";
 import ejs from "ejs";
-import { TechnicianWhereInput } from "../../../generated/prisma/models";
+import { TechnicianWhereInput, UnexpectedOutageWhereInput } from "../../../generated/prisma/models";
 import httpStatus from "http-status";
 import type { UploadApiResponse } from "cloudinary";
 
 import {
+  OutageStatus,
   Role,
   TechnicianVerificationStatus,
 } from "../../../generated/prisma/enums";
@@ -20,6 +21,7 @@ import { IQuery } from "../../interfaces";
 import {
   IApplyAsTechinicianPayload,
   IApproveTechnicianPayload,
+  IUpdateOutageStatusPayload,
   IUpdateTechnicianProfilePayload,
   IVerifyTechnicianEmailPayload,
 } from "./technician.interface";
@@ -466,6 +468,146 @@ const getSingleTechnicianPublicProfile = async (technicianId: string) => {
   return technician;
 };
 
+const getMyAssignments = async (query: IQuery, user: RequestUser) => {
+  const limit = query.limit ? Number(query.limit) : 10;
+  const page = query.page ? Number(query.page) : 1;
+  const skip = (page - 1) * limit;
+
+  const technician = await prisma.technician.findUnique({
+    where: { userId: user.userId },
+  });
+
+  if (!technician) {
+    throw new AppError(httpStatus.NOT_FOUND, "Technician Profile Not Found");
+  }
+
+  // unexpected outages
+  const unexpectedOutages = await prisma.unexpectedOutage.findMany({
+    where: {
+      technicianId: technician.id,
+      isDeleted: false,
+    },
+    take: limit,
+    skip,
+    orderBy: { createdAt: "desc" },
+    include: {
+      area: true,
+      reporter: { omit: { password: true } },
+    },
+  });
+
+  const unexpectedTotal = await prisma.unexpectedOutage.count({
+    where: {
+      technicianId: technician.id,
+      isDeleted: false,
+    },
+  });
+
+  // scheduled outages
+  const scheduledOutages = await prisma.scheduledOutage.findMany({
+    where: {
+      technicianId: technician.id,
+      isDeleted: false,
+    },
+    take: limit,
+    skip,
+    orderBy: { startTime: "asc" },
+    include: { area: true },
+  });
+
+  const scheduledTotal = await prisma.scheduledOutage.count({
+    where: {
+      technicianId: technician.id,
+      isDeleted: false,
+    },
+  });
+
+  return {
+    data: {
+      unexpectedOutages,
+      scheduledOutages,
+    },
+    meta: {
+      page,
+      limit,
+      unexpectedTotal,
+      scheduledTotal,
+      totalAssignments: unexpectedTotal + scheduledTotal,
+    },
+  };
+};
+
+const updateStatus = async (
+  outageId: string,
+  payload: IUpdateOutageStatusPayload,
+  user: RequestUser,
+) => {
+  const technician = await prisma.technician.findUnique({
+    where: { userId: user.userId },
+  });
+
+  if (!technician) {
+    throw new AppError(httpStatus.NOT_FOUND, "Technician Profile Not Found");
+  }
+
+  const existingOutage = await prisma.unexpectedOutage.findUnique({
+    where: { id: outageId, isDeleted: false },
+    include: { reporter: true },
+  });
+
+  if (!existingOutage) {
+    throw new AppError(httpStatus.NOT_FOUND, "Outage Not Found");
+  }
+
+  if (existingOutage.technicianId !== technician.id) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You Are Not Assigned To This Outage",
+    );
+  }
+
+  if (existingOutage.status === OutageStatus.RESOLVED) {
+    throw new AppError(httpStatus.CONFLICT, "Outage Has Already Been Resolved");
+  }
+
+  const updatedOutage = await prisma.unexpectedOutage.update({
+    where: { id: outageId },
+    data: {
+      status: payload.status,
+      note: payload.note,
+      resolvedAt:
+        payload.status === OutageStatus.RESOLVED ? new Date() : undefined,
+    },
+  });
+
+  // send email to reporter when resolved
+  if (payload.status === OutageStatus.RESOLVED) {
+    const templatePath = path.join(
+      process.cwd(),
+      "src/app/templates/outage-resolved.ejs",
+    );
+
+    const templateData = {
+      name: existingOutage.reporter.name,
+      description: existingOutage.description,
+      area: existingOutage.areaId,
+      resolvedAt: new Date().toLocaleString(),
+      note: payload.note ?? "No additional notes provided.",
+    };
+
+    const html = await ejs.renderFile(templatePath, templateData);
+
+    await transporter.sendMail({
+      from: config.email_sender,
+      to: existingOutage.reporter.email,
+      subject: "Your Reported Outage Has Been Resolved ✅",
+      html,
+    });
+  }
+
+  return updatedOutage;
+};
+
 export const TechnicianServices = {
   applyAsTechnician,
   verifyTechnicianEmail,
@@ -474,4 +616,6 @@ export const TechnicianServices = {
   updateTechnicianProfile,
   getAllTechnicianListPublic,
   getSingleTechnicianPublicProfile,
+  getMyAssignments,
+  updateStatus,
 };

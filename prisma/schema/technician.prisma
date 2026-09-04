@@ -29,6 +29,7 @@ model Technician {
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
     unexpectedOutages UnexpectedOutage[]
+    scheduledOutages ScheduledOutage[]
 
     @@index([email], name: "idx_technician_email")
     @@map("technicians")

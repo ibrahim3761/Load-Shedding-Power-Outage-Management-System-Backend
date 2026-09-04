@@ -19,11 +19,3 @@ export const AssignTechnicianValidationZodSchema = z.object({
     .min(1, "Technician ID is required"),
 });
 
-export const UpdateOutageStatusValidationZodSchema = z.object({
-  status: z.enum([OutageStatus.IN_PROGRESS, OutageStatus.RESOLVED]),
-  note: z
-    .string()
-    .trim()
-    .max(500, "Note cannot exceed 500 characters")
-    .optional(),
-});

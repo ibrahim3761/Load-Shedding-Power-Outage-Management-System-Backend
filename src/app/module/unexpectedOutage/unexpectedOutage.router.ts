@@ -6,7 +6,6 @@ import { UnexpectedOutageController } from "./unexpectedOutage.controller";
 import {
     AssignTechnicianValidationZodSchema,
   ReportOutageValidationZodSchema,
-  UpdateOutageStatusValidationZodSchema,
 } from "./unexpectedOutage.validation";
 
 const router = Router();
@@ -29,20 +28,6 @@ router.get(
   auth(Role.CUSTOMER),
   UnexpectedOutageController.getMyReports,
 );
-
-// technician
-router.get(
-  "/my-assignments",
-  auth(Role.TECHNICIAN),
-  UnexpectedOutageController.getMyAssignments,
-);
-
-router.patch(
-  "/:outageId/update-status",
-  auth(Role.TECHNICIAN),
-  validateRequest(UpdateOutageStatusValidationZodSchema),
-  UnexpectedOutageController.updateStatus,
-); 
 
 // admin
 router.get(

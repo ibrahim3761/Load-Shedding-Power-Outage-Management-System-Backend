@@ -32,41 +32,6 @@ const getMyReports = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getMyAssignments = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as RequestUser;
-
-  const result = await UnexpectedOutageServices.getMyAssignments(
-    req.query,
-    user,
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "My assignments fetched successfully",
-    data: result.data,
-    meta: result.meta,
-  });
-});
-
-const updateStatus = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as RequestUser;
-  const { outageId } = req.params;
-
-  const result = await UnexpectedOutageServices.updateStatus(
-    outageId as string,
-    req.body,
-    user,
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Outage status updated successfully",
-    data: result,
-  });
-});
-
 const getAllOutages = catchAsync(async (req: Request, res: Response) => {
   const result = await UnexpectedOutageServices.getAllOutages(req.query);
 
@@ -147,8 +112,6 @@ const getPublicOutagesByArea = catchAsync(
 export const UnexpectedOutageController = {
   reportOutage,
   getMyReports,
-  getMyAssignments,
-  updateStatus,
   getAllOutages,
   getSingleOutage,
   assignTechnician,

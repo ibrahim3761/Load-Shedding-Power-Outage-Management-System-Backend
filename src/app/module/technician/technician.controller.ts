@@ -4,6 +4,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { ApplyAsTechnicianValidationZodSchema, UpdateTechnicianProfileValidationZodSchema } from "./technician.validation";
 import { TechnicianServices } from "./technician.services";
+import { RequestUser } from "../../middleware/checkAuth";
 
 const applyTechnician = catchAsync(async (req: Request, res: Response) => {
 	const resume = req.file as Express.Multer.File | null;
@@ -111,6 +112,43 @@ const getSingleTechnicianPublicProfile = catchAsync(
 	},
 );
 
+
+
+const getMyAssignments = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as RequestUser;
+
+  const result = await TechnicianServices.getMyAssignments(
+    req.query,
+    user,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "My assignments fetched successfully",
+    data: result,
+  });
+});
+
+const updateStatus = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as RequestUser;
+  const { outageId } = req.params;
+
+  const result = await TechnicianServices.updateStatus(
+    outageId as string,
+    req.body,
+    user,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Outage status updated successfully",
+    data: result,
+  });
+});
+
+
 export const TechnicianController = {
 	applyTechnician,
 	verifyTechnicianEmail,
@@ -119,4 +157,6 @@ export const TechnicianController = {
 	updateTechnicianProfile,
 	getAllTechnicianListPublic,
 	getSingleTechnicianPublicProfile,
+	getMyAssignments,
+	updateStatus,
 };

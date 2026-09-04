@@ -4,7 +4,7 @@ import { Role } from "../../../generated/prisma/enums";
 import { auth } from "../../middleware/checkAuth";
 import { validateRequest } from "../../middleware/validateRequest";
 import { TechnicianController } from "./technician.controller";
-import { UpdateTechnicianProfileValidationZodSchema } from "./technician.validation";
+import { UpdateOutageStatusValidationZodSchema, UpdateTechnicianProfileValidationZodSchema } from "./technician.validation";
 
 const router = Router();
 
@@ -46,6 +46,20 @@ router.get(
   "/public/:technicianId",
   TechnicianController.getSingleTechnicianPublicProfile,
 );
+
+// technician
+router.get(
+  "/my-assignments",
+  auth(Role.TECHNICIAN),
+  TechnicianController.getMyAssignments,
+);
+
+router.patch(
+  "/:outageId/update-status",
+  auth(Role.TECHNICIAN),
+  validateRequest(UpdateOutageStatusValidationZodSchema),
+  TechnicianController.updateStatus,
+); 
 
 export const TechnicianRoutes = router;
  

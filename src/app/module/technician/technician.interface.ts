@@ -1,4 +1,4 @@
-import { TechnicianVerificationStatus } from "../../../generated/prisma/enums";
+import { OutageStatus, TechnicianVerificationStatus } from "../../../generated/prisma/enums";
 
 export interface IApplyAsTechinicianPayload {
 	user: {
@@ -30,4 +30,9 @@ export interface IUpdateTechnicianProfilePayload {
 	bio?: string;
 	contactNumber?: string;
     experienceYears?: number;
+}
+
+export interface IUpdateOutageStatusPayload {
+  status: OutageStatus;
+  note?: string;
 }

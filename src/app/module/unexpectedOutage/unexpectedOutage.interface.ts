@@ -5,10 +5,7 @@ export interface IReportOutagePayload {
   areaId: string;
 }
 
-export interface IUpdateOutageStatusPayload {
-  status: OutageStatus;
-  note?: string;
-}
+
 
 export interface IAssignTechnicianPayload {
   technicianId: string;

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { OutageStatus } from "../../../generated/prisma/enums";
 
 export const ApplyAsTechnicianValidationZodSchema = z.object({
   user: z.object({
@@ -57,5 +58,15 @@ export const UpdateTechnicianProfileValidationZodSchema = z.object({
     .number()
     .int()
     .min(0, "Experience years cannot be negative")
+    .optional(),
+});
+
+
+export const UpdateOutageStatusValidationZodSchema = z.object({
+  status: z.enum([OutageStatus.IN_PROGRESS, OutageStatus.RESOLVED]),
+  note: z
+    .string()
+    .trim()
+    .max(500, "Note cannot exceed 500 characters")
     .optional(),
 });
