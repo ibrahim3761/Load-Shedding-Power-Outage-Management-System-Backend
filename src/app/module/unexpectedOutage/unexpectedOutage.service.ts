@@ -159,6 +159,7 @@ const assignTechnician = async (
 ) => {
   const existingOutage = await prisma.unexpectedOutage.findUnique({
     where: { id: outageId, isDeleted: false },
+    include: { area: true },
   });
 
   if (!existingOutage) {
@@ -174,6 +175,7 @@ const assignTechnician = async (
 
   const existingTechnician = await prisma.technician.findUnique({
     where: { id: payload.technicianId, isDeleted: false },
+    include: { user: true },
   });
 
   if (!existingTechnician) {
@@ -188,9 +190,32 @@ const assignTechnician = async (
     },
     include: {
       area: true,
-      technician: true,
+      technician: { include: { user: true } },
       reporter: { omit: { password: true } },
     },
+  });
+
+  // send email to technician
+  const templatePath = path.join(
+    process.cwd(),
+    "src/app/templates/technician-assigned.ejs",
+  );
+
+  const templateData = {
+    name: existingTechnician.user.name,
+    area: existingOutage.area.name,
+    district: existingOutage.area.district,
+    type: "Unexpected Outage",
+    reason: existingOutage.description,
+  };
+
+  const html = await ejs.renderFile(templatePath, templateData);
+
+  await transporter.sendMail({
+    from: config.email_sender,
+    to: existingTechnician.user.email,
+    subject: `New Assignment - ${existingOutage.area.name}`,
+    html,
   });
 
   return updatedOutage;

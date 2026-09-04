@@ -6,6 +6,7 @@ export const CreateScheduledOutageValidationZodSchema = z
     startTime: z.string().datetime({ offset: true, message: "Invalid start time format" }),
     endTime: z.string().datetime({ offset: true, message: "Invalid end time format" }),
     areaId: z.string().trim().min(1, "Area is required"),
+    technicianId: z.string().trim().min(1, "Technician is required"),
   })
   .refine((data) => new Date(data.startTime) < new Date(data.endTime), {
     message: "Start time must be before end time",

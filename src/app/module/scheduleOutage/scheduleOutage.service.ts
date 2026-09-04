@@ -11,7 +11,6 @@ import config from "../../config";
 const createScheduledOutage = async (
   payload: ICreateScheduledOutagePayload,
 ) => {
-  // check area exists
   const existingArea = await prisma.area.findUnique({
     where: { id: payload.areaId, isDeleted: false },
   });
@@ -20,17 +19,34 @@ const createScheduledOutage = async (
     throw new AppError(httpStatus.NOT_FOUND, "Area Not Found");
   }
 
+  // check technician exists if provided
+  if (payload.technicianId) {
+    const existingTechnician = await prisma.technician.findUnique({
+      where: { id: payload.technicianId, isDeleted: false },
+    });
+
+    if (!existingTechnician) {
+      throw new AppError(httpStatus.NOT_FOUND, "Technician Not Found");
+    }
+  }
+
   const scheduledOutage = await prisma.scheduledOutage.create({
     data: {
       reason: payload.reason,
       startTime: new Date(payload.startTime),
       endTime: new Date(payload.endTime),
       areaId: payload.areaId,
+      technicianId: payload.technicianId ?? null,
     },
-    include: { area: true },
+    include: {
+      area: true,
+      technician: {
+        include: { user: true },
+      },
+    },
   });
 
-  // find all active premium users in this area
+  // send emails to premium users
   const premiumUsers = await prisma.premiumUser.findMany({
     where: {
       areaId: payload.areaId,
@@ -40,7 +56,6 @@ const createScheduledOutage = async (
     include: { user: true },
   });
 
-  // send emails if there are premium users
   if (premiumUsers.length > 0) {
     const templatePath = path.join(
       process.cwd(),
@@ -68,10 +83,31 @@ const createScheduledOutage = async (
         });
       }),
     );
+  }
 
-    console.log(
-      `Emails sent to ${premiumUsers.length} premium users for outage in ${existingArea.name}`,
+  // send email to assigned technician if provided
+  if (scheduledOutage.technician) {
+    const technicianTemplatePath = path.join(
+      process.cwd(),
+      "src/app/templates/technician-assigned.ejs",
     );
+
+    const templateData = {
+      name: scheduledOutage.technician.user.name,
+      area: existingArea.name,
+      district: existingArea.district,
+      type: "Scheduled Outage",
+      reason: payload.reason,
+    };
+
+    const html = await ejs.renderFile(technicianTemplatePath, templateData);
+
+    await transporter.sendMail({
+      from: config.email_sender,
+      to: scheduledOutage.technician.user.email,
+      subject: `New Assignment - ${existingArea.name}`,
+      html,
+    });
   }
 
   return scheduledOutage;
