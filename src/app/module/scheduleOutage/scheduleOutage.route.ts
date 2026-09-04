@@ -8,7 +8,15 @@ import { CreateScheduledOutageValidationZodSchema } from "./scheduleOutage.valid
 const router = Router();
 
 // public 
+router.get(
+  "/public/all",
+  ScheduledOutageController.getPublicScheduledOutages,
+);
 
+router.get(
+  "/public/area/:areaId",
+  ScheduledOutageController.getPublicOutagesByArea,
+);
 
 // admin
 router.post(
@@ -16,6 +24,18 @@ router.post(
   auth(Role.ADMIN, Role.SUPER_ADMIN),
   validateRequest(CreateScheduledOutageValidationZodSchema),
   ScheduledOutageController.createScheduledOutage,
+);
+
+router.get(
+  "/all",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  ScheduledOutageController.getAllScheduledOutages,
+);
+
+router.get(
+  "/:outageId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  ScheduledOutageController.getSingleScheduledOutage,
 );
 
 
