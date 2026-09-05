@@ -1,6 +1,6 @@
 model Payment {
   id                    String        @id @default(uuid())
-  amount                String
+  amount                Float
   status                PaymentStatus @default(PENDING)
   bkashPaymentId        String?       @unique
   bkashTrxId            String?

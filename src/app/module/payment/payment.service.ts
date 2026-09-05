@@ -113,7 +113,7 @@ const buyPremium = async (payload: IBuyPremiumPayload, user: RequestUser) => {
       data: {
         merchantInvoiceNumber: bkashCreatePaymentResult.merchantInvoiceNumber,
         premiumUserId: premiumUser.id,
-        amount: amount,
+        amount: parseFloat(amount),
         gatewayResponse: bkashCreatePaymentResult,
         bkashPaymentId: bkashCreatePaymentResult.paymentID,
         payerReference: user.email,
