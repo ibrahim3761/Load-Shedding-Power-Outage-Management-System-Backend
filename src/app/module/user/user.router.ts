@@ -3,14 +3,57 @@ import { UserController } from "./user.controller";
 import { upload } from "../../lib/multer";
 import { auth } from "../../middleware/checkAuth";
 import { Role } from "../../../generated/prisma/enums";
+import { validateRequest } from "../../middleware/validateRequest";
+import { ChangePasswordValidationZodSchema, UpdateMyProfileValidationZodSchema, UpdateUserStatusValidationZodSchema } from "./user.validation";
 
 const router = Router();
 
 router.patch(
-	"/profile-image",
-	upload.single("profileImage"),
-	auth(Role.ADMIN, Role.TECHNICIAN, Role.CUSTOMER, Role.SUPER_ADMIN),
-	UserController.uploadProfileImage,
+  "/update-my-profile",
+  auth(Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
+  validateRequest(UpdateMyProfileValidationZodSchema),
+  UserController.updateMyProfile,
 );
+
+router.patch(
+  "/change-password",
+  auth(Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
+  validateRequest(ChangePasswordValidationZodSchema),
+  UserController.changePassword,
+);
+
+router.patch(
+  "/profile-image",
+  upload.single("profileImage"),
+  auth(Role.ADMIN, Role.TECHNICIAN, Role.CUSTOMER, Role.SUPER_ADMIN),
+  UserController.uploadProfileImage,
+);
+
+// admin
+router.get(
+  "/all",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  UserController.getAllUsers,
+);
+
+router.get(
+  "/:userId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  UserController.getSingleUser,
+);
+
+router.patch(
+  "/:userId/status",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  validateRequest(UpdateUserStatusValidationZodSchema),
+  UserController.updateUserStatus,
+);
+
+router.delete(
+  "/:userId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  UserController.deleteUser,
+);
+
 
 export const UserRoutes = router;
