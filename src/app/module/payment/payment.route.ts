@@ -14,7 +14,6 @@ router.post(
   PaymentController.buyPremium,
 );
 
-// bKash hits this — no auth
 router.get("/callback", PaymentController.paymentCallback);
 
 router.get(
@@ -29,7 +28,6 @@ router.get(
   PaymentController.getAllPayments,
 );
 
-// always last
 router.get(
   "/:paymentId",
   auth(Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER),

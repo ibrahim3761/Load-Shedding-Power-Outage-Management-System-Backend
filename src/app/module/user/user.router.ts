@@ -12,7 +12,6 @@ import {
 
 const router = Router();
 
-// static PATCH routes
 router.patch(
   "/update-my-profile",
   auth(Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
@@ -34,7 +33,6 @@ router.patch(
   UserController.uploadProfileImage,
 );
 
-// static GET routes — customer
 router.get(
   "/my-premium",
   auth(Role.CUSTOMER),
@@ -47,7 +45,6 @@ router.get(
   UserController.getMySinglePremiumSubscription,
 );
 
-// static GET routes — admin
 router.get(
   "/all",
   auth(Role.ADMIN, Role.SUPER_ADMIN),
@@ -66,7 +63,6 @@ router.get(
   UserController.getSinglePremiumUser,
 );
 
-// dynamic routes — always last
 router.get(
   "/:userId",
   auth(Role.ADMIN, Role.SUPER_ADMIN),
