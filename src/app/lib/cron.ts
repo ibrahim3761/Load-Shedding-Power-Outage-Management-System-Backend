@@ -3,7 +3,6 @@ import { SubscriptionStatus } from "../../generated/prisma/enums";
 import { prisma } from "./prisma";
 
 export const startCronJobs = () => {
-  // Every 10 seconds — for testing only
   cron.schedule("0 0 * * *", async () => {
     try {
       const now = new Date();
