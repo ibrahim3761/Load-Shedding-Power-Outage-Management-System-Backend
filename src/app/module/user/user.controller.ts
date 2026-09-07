@@ -78,6 +78,63 @@ const getSingleUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllPremiumUsers = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getAllPremiumUsers(req.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Premium users fetched successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
+const getSinglePremiumUser = catchAsync(async (req: Request, res: Response) => {
+  const { premiumUserId } = req.params;
+
+  const result = await UserService.getSinglePremiumUser(premiumUserId as string);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Premium user fetched successfully",
+    data: result,
+  });
+});
+
+const getMyPremiumSubscriptions = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as RequestUser;
+
+  const result = await UserService.getMyPremiumSubscriptions(req.query, user);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "My premium subscriptions fetched successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
+const getMySinglePremiumSubscription = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as RequestUser;
+  const { premiumUserId } = req.params;
+
+  const result = await UserService.getMySinglePremiumSubscription(
+    premiumUserId as string,
+    user,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Premium subscription fetched successfully",
+    data: result,
+  });
+});
+
+
 const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.params;
 
@@ -110,6 +167,10 @@ export const UserController = {
 	changePassword,
 	getAllUsers,
 	getSingleUser,
+  getAllPremiumUsers,
+  getSinglePremiumUser,
+  getMyPremiumSubscriptions,
+  getMySinglePremiumSubscription,
 	updateUserStatus,
 	deleteUser,
 };

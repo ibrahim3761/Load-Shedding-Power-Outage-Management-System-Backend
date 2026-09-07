@@ -42,6 +42,30 @@ router.get(
   UserController.getSingleUser,
 );
 
+router.get(
+  "/premium-users",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  UserController.getAllPremiumUsers,
+);
+
+router.get(
+  "/premium-users/:premiumUserId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  UserController.getSinglePremiumUser,
+);
+
+router.get(
+  "/my-premium",
+  auth(Role.CUSTOMER),
+  UserController.getMyPremiumSubscriptions,
+);
+
+router.get(
+  "/my-premium/:premiumUserId",
+  auth(Role.CUSTOMER),
+  UserController.getMySinglePremiumSubscription,
+);
+
 router.patch(
   "/:userId/status",
   auth(Role.ADMIN, Role.SUPER_ADMIN),
