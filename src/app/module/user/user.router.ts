@@ -4,10 +4,15 @@ import { upload } from "../../lib/multer";
 import { auth } from "../../middleware/checkAuth";
 import { Role } from "../../../generated/prisma/enums";
 import { validateRequest } from "../../middleware/validateRequest";
-import { ChangePasswordValidationZodSchema, UpdateMyProfileValidationZodSchema, UpdateUserStatusValidationZodSchema } from "./user.validation";
+import {
+  ChangePasswordValidationZodSchema,
+  UpdateMyProfileValidationZodSchema,
+  UpdateUserStatusValidationZodSchema,
+} from "./user.validation";
 
 const router = Router();
 
+// static PATCH routes
 router.patch(
   "/update-my-profile",
   auth(Role.ADMIN, Role.SUPER_ADMIN, Role.CUSTOMER, Role.TECHNICIAN),
@@ -29,17 +34,24 @@ router.patch(
   UserController.uploadProfileImage,
 );
 
-// admin
+// static GET routes — customer
+router.get(
+  "/my-premium",
+  auth(Role.CUSTOMER),
+  UserController.getMyPremiumSubscriptions,
+);
+
+router.get(
+  "/my-premium/:premiumUserId",
+  auth(Role.CUSTOMER),
+  UserController.getMySinglePremiumSubscription,
+);
+
+// static GET routes — admin
 router.get(
   "/all",
   auth(Role.ADMIN, Role.SUPER_ADMIN),
   UserController.getAllUsers,
-);
-
-router.get(
-  "/:userId",
-  auth(Role.ADMIN, Role.SUPER_ADMIN),
-  UserController.getSingleUser,
 );
 
 router.get(
@@ -54,16 +66,11 @@ router.get(
   UserController.getSinglePremiumUser,
 );
 
+// dynamic routes — always last
 router.get(
-  "/my-premium",
-  auth(Role.CUSTOMER),
-  UserController.getMyPremiumSubscriptions,
-);
-
-router.get(
-  "/my-premium/:premiumUserId",
-  auth(Role.CUSTOMER),
-  UserController.getMySinglePremiumSubscription,
+  "/:userId",
+  auth(Role.ADMIN, Role.SUPER_ADMIN),
+  UserController.getSingleUser,
 );
 
 router.patch(
@@ -78,6 +85,5 @@ router.delete(
   auth(Role.ADMIN, Role.SUPER_ADMIN),
   UserController.deleteUser,
 );
-
 
 export const UserRoutes = router;
