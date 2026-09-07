@@ -1,6 +1,6 @@
-# ⚡ Load Shedding & Power Outage Management System — Backend
+# ⚡ Load Shedding & Power Outage Management System - Backend
 
-A backend service for managing planned load-shedding schedules and unexpected power outages across distribution areas. Customers can report outages and track restoration, technicians get assigned and update repair status, and admins manage areas, schedules, technicians, and premium subscriptions — all behind strict Bearer-token, role-based authentication.
+A backend service for managing planned load-shedding schedules and unexpected power outages across distribution areas. Customers can report outages and track restoration, technicians get assigned and update repair status, and admins manage areas, schedules, technicians, and premium subscriptions - all behind strict Bearer-token, role-based authentication.
 
 🔗 **Live API:** [https://load-shedding-power-outage-manageme.vercel.app](https://load-shedding-power-outage-manageme.vercel.app)
 
