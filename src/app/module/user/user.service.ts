@@ -311,7 +311,7 @@ const getMyPremiumSubscriptions = async (query: IQuery, user: RequestUser) => {
     include: {
       package: true,
       area: true,
-      payment: true,
+      payments: true,
     },
   });
 
@@ -334,7 +334,7 @@ const getMySinglePremiumSubscription = async (
     include: {
       package: true,
       area: true,
-      payment: true,
+      payments: true,
     },
   });
 

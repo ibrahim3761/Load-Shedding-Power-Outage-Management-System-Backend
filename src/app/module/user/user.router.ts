@@ -57,7 +57,7 @@ router.get(
 router.get(
   "/premium-users",
   auth(Role.ADMIN, Role.SUPER_ADMIN),
-  UserController.getAllPremiumUsers,
+  UserController.getAllPremiumUsers, 
 );
 
 router.get(
