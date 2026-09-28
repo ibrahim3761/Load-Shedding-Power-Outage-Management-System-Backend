@@ -45,7 +45,7 @@ const registerCustomer = async (payload: IRegisterCustomerPayload) => {
 		Number(config.bcrypt_salt_rounds),
 	);
 
-	const otpValue = crypto.randomInt(10000, 1000000).toString();
+	const otpValue = crypto.randomInt(100000, 1000000).toString();
 
 	const otpKey = `customer-registration-otp:${email}`;
 
