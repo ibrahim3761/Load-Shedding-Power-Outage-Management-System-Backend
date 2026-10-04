@@ -74,7 +74,7 @@ const applyAsTechnician = async (
     },
   );
 
-  const randomTechnicianPassword = Math.random().toString(36).slice(-8);
+  const randomTechnicianPassword = `Tech@${Math.random().toString(36).slice(-6).toUpperCase()}1`; 
 
   const hashedPassword = await bcrypt.hash(
     randomTechnicianPassword,
