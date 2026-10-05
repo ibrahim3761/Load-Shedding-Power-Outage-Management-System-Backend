@@ -28,6 +28,7 @@ import {
 
 import { AppError } from "../../utils/AppError";
 import { RequestUser } from "../../middleware/checkAuth";
+import { updateOutageStatuses } from "../../utils/updateOutageStatuses";
 
 const applyAsTechnician = async (
   payload: IApplyAsTechinicianPayload,
@@ -469,6 +470,7 @@ const getSingleTechnicianPublicProfile = async (technicianId: string) => {
 };
 
 const getMyAssignments = async (query: IQuery, user: RequestUser) => {
+  await updateOutageStatuses();
   const limit = query.limit ? Number(query.limit) : 10;
   const page = query.page ? Number(query.page) : 1;
   const skip = (page - 1) * limit;

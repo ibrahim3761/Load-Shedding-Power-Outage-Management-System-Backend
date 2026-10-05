@@ -120,6 +120,7 @@ const createScheduledOutage = async (
 };
 
 const getAllScheduledOutages = async (query: IQuery) => {
+
   await updateOutageStatuses();
 
   const limit = query.limit ? Number(query.limit) : 10;
