@@ -56,7 +56,10 @@ const authLimiter = rateLimit({
 
 app.use(
 	cors({
-		origin: config.frontend_url,
+		origin: [
+      config.frontend_url ?? "http://localhost:3000",
+      "http://localhost:3000",
+    ],
 		credentials: true,
 	}),
 );
