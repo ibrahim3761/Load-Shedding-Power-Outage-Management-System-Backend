@@ -95,7 +95,7 @@ cp .env.example .env
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | File uploads (resumes, profile images) |
 | `BKASH_BASE_URL` / `BKASH_USERNSME` / `BKASH_PASSWORD` / `BKASH_APP_KEY` / `BKASH_APP_SECRET` / `BKASH_CALLBACK_URL` | Payment gateway |
 
-### 3. Database setups-
+### 3. Database setups
 
 ```bash
 npx prisma generate
